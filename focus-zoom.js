@@ -1,71 +1,83 @@
-var DURATION = 300;
+var focusZoom = (function() {
+	'use strict';
 
-var prevFocused = null;
-var docElem = document.documentElement;
-var keyDownTime = 0;
+	var DURATION = 200;
 
-var webkitPrefix = typeof docElem.style.transform !== 'string' && typeof docElem.style.webkitTransform === 'string';
-var transformProperty = webkitPrefix ? '-webkit-transform' : 'transform';
-var transitionProperty = transformProperty + ' ' + DURATION/1000 + 's cubic-bezier(0, 0.2, 0, 1)';
+	var focusZoom = {
+		trigger: trigger,
+		enabled: true
+	};
 
+	var prevFocused = null;
+	var docElem = document.documentElement;
+	var keyDownTime = 0;
 
-docElem.addEventListener('keydown', function(event) {
-	var code = event.which;
-	// Show animation only upon Tab or Arrow keys press.
-	if (code === 9 || (code > 36 && code < 41)) {
-		keyDownTime = Date.now();
-	}
-}, false);
+	var webkitPrefix = typeof docElem.style.transform !== 'string' && typeof docElem.style.webkitTransform === 'string';
+	var transformProperty = webkitPrefix ? '-webkit-transform' : 'transform';
+	var transitionProperty = transformProperty + ' ' + DURATION/1000 + 's cubic-bezier(0, 0.2, 0, 1)';
 
 
-docElem.addEventListener('focus', function(event) {
-	if (window.FOCUS_ZOOM_DISABLED) {
-		return;
-	}
+	docElem.addEventListener('keydown', function(event) {
+		var code = event.which;
+		// Show animation only upon Tab or Arrow keys press.
+		if (code === 9 || (code > 36 && code < 41)) {
+			keyDownTime = Date.now();
+		}
+	}, false);
 
-	if (Date.now() - keyDownTime > 42) {
-		return;
-	}
 
-	var target = event.target;
-	abort();
-	prevFocused = target;
-
-	setTransform(target, 'scale(1.4)');
-	requestAnimationFrame(function() {
-		enableTransition(target);
+	function trigger(target) {
+		onEnd();
+		prevFocused = target;
+		setTransform(target, 'scale(1.4)');
 		requestAnimationFrame(function() {
-			setTransform(target, '');
-			setTimeout(function() {
-				disableTransition(target);
-			}, DURATION);
+			enableTransition(target);
+			requestAnimationFrame(function() {
+				setTransform(target, '');
+				setTimeout(function() {
+					disableTransition(target);
+				}, DURATION);
+			});
 		});
-	});
-
-}, true);
+	}
 
 
-docElem.addEventListener('blur', function() {
-	abort();
-}, true);
+	docElem.addEventListener('focus', function(event) {
+		if (!focusZoom.enabled) {
+			return;
+		}
+
+		if (Date.now() - keyDownTime > 42) {
+			return;
+		}
+
+		trigger(event.target);
+	}, true);
 
 
-function abort() {
-	if (!prevFocused) return;
-	setTransform(prevFocused, '');
-	disableTransition(prevFocused);
-}
+	docElem.addEventListener('blur', function() {
+		onEnd();
+	}, true);
 
 
-function enableTransition(element) {
-	element.style.transition = transitionProperty;
-}
+	function onEnd() {
+		if (!prevFocused) return;
+		setTransform(prevFocused, '');
+		disableTransition(prevFocused);
+	}
 
-function disableTransition(element) {
-	element.style.transition = '';
-}
 
-function setTransform(element, value) {
-	element.style[webkitPrefix ? 'webkitTransform' : 'transform'] = value;
-}
+	function enableTransition(element) {
+		element.style.transition = transitionProperty;
+	}
 
+	function disableTransition(element) {
+		element.style.transition = '';
+	}
+
+	function setTransform(element, value) {
+		element.style[webkitPrefix ? 'webkitTransform' : 'transform'] = value;
+	}
+
+	return focusZoom;
+})();
