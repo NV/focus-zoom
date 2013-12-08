@@ -1,0 +1,17 @@
+[Flying Focus](//github.com/NV/flying-focus/)
+ · [Focus Snail](//github.com/NV/focus-snail/)
+ · **Focus Zoom**
+ · [Focus Hug](//github.com/NV/focus-hug/)
+
+## [Focus Zoom](http://nv.github.io/focus-zoom/focus-zoom.js)
+
+To use, just include `<script src="focus-zoom.js"></script>` inside either `<head>` or `<body>`.
+It has no external dependencies.
+
+### API
+
+Focus Zoom exposes `focusZoom` global variable.
+
+`focusZoom.trigger(element)` manually run for the specified element
+
+`focusZoom.enabled = true`
