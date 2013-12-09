@@ -12,6 +12,6 @@ It has no external dependencies.
 
 Focus Zoom exposes `focusZoom` global variable.
 
-`focusZoom.trigger(element)` manually run for the specified element
+`focusZoom.trigger(element)` manually runs for the specified element
 
 `focusZoom.enabled = true`
